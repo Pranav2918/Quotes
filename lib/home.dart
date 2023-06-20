@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:quotes/model/quotesData.dart';
 import 'package:quotes/service/appService.dart';
+import 'package:quotes/utils/checkConnectivity.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,13 +42,22 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
               onPressed: () {
-                fetchQuoteAndAuthor();
-                Future.delayed(const Duration(milliseconds: 400), () {
-                  setState(() {
-                    scaffoldColor =
-                        Color(Random().nextInt(0xff000000)).withOpacity(0.5);
-                    
-                  });
+                CheckInternetConnectivity()
+                    .checkInternetConnection()
+                    .then((hasInternet) {
+                  if (hasInternet) {
+                    fetchQuoteAndAuthor();
+                    Future.delayed(const Duration(milliseconds: 900), () {
+                      setState(() {
+                        scaffoldColor = Color(Random().nextInt(0xff000000))
+                            .withOpacity(0.5);
+                      });
+                    });
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("No Internet"),
+                        behavior: SnackBarBehavior.floating));
+                  }
                 });
               },
               icon: const Icon(Icons.refresh))
